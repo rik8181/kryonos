@@ -45,46 +45,9 @@ LABEL org.opencontainers.image.vendor="KryonOS Project"
 # csomagot rétegezni, előbb vissza kell kapcsolnod:
 #   sudo sed -i '/\[terra-mesa\]/,/^\[/{s/enabled=0/enabled=1/}' \
 #     /etc/yum.repos.d/terra*.repo
-RUN python3 -c "
-import re, glob
-changed_any = False
-for path in glob.glob('/etc/yum.repos.d/*.repo'):
-    with open(path) as f:
-        content = f.read()
-    if 'terra' not in content.lower():
-        continue
-    # Szekciókra bontás (minden [section] fejléc új blokkot indít)
-    sections = re.split(r'(?m)^(?=\[)', content)
-    out = []
-    file_changed = False
-    for sec in sections:
-        header_match = re.match(r'\[([^\]]+)\]', sec)
-        is_terra_mesa = header_match and 'mesa' in header_match.group(1).lower() and 'terra' in content[:content.find(sec)+len(sec)].lower()
-        # Egyszerűbb, megbízhatóbb feltétel: a szekció NEVE tartalmazza a 'mesa'-t,
-        # ÉS a fájl egésze 'terra'-hoz köthető (a fájlnév vagy tartalom alapján már szűrve fent)
-        if header_match and 'mesa' in header_match.group(1).lower():
-            if re.search(r'(?m)^enabled\s*=\s*1', sec):
-                sec = re.sub(r'(?m)^enabled\s*=\s*1', 'enabled=0', sec)
-            elif not re.search(r'(?m)^enabled\s*=', sec):
-                sec = sec.rstrip('\n') + '\nenabled=0\n'
-            file_changed = True
-        out.append(sec)
-    if file_changed:
-        with open(path, 'w') as f:
-            f.write(''.join(out))
-        print('Letiltva a mesa-kapcsolodo szekcio itt:', path)
-        changed_any = True
-if not changed_any:
-    print('FIGYELEM: nem talalt terra/mesa szekciot letiltasra.')
-    print('--- Az osszes talalt [szekcio] terra-tartalmu fajlokban (debug): ---')
-    for path in glob.glob('/etc/yum.repos.d/*.repo'):
-        with open(path) as f:
-            content = f.read()
-        if 'terra' in content.lower():
-            for h in re.findall(r'^\[([^\]]+)\]', content, re.MULTILINE):
-                print(path, '->', h)
-    raise SystemExit(1)
-" \
+COPY scripts/disable-terra-mesa-repo.py /tmp/disable-terra-mesa-repo.py
+RUN python3 /tmp/disable-terra-mesa-repo.py \
+    && rm -f /tmp/disable-terra-mesa-repo.py \
     && ostree container commit
 
 # ------------------------------------------------------------
