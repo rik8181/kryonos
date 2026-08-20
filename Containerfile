@@ -53,6 +53,7 @@ RUN rpm-ostree install \
         kde-gtk-config \
         plasma-integration \
         qt6ct \
+        plymouth-plugin-script \
     && ostree container commit
 
 # ------------------------------------------------------------
