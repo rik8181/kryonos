@@ -58,9 +58,30 @@ jobs:
   build-iso:
     needs: build
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # ⚠️ JAVÍTVA (második build hiba alapján): az újabb
+      # bootc-image-builder verziók már NEM húzzák le maguktól az
+      # image-et — előbb explicit módon "sudo podman pull"-lal be kell
+      # tölteni. A "sudo" azért kell a login-nál ÉS a pull-nál is,
+      # mert a lenti "Build bootable ISO" lépés root-ként (sudo podman
+      # run --privileged) futtatja a bootc-image-builder-t, és a
+      # /var/lib/containers/storage-t (ami a ROOT podman tárolója,
+      # nem a runner useré) csatolja be neki — ha a login/pull nem
+      # sudo-val történik, root podman-ja nem fogja "ismerni" az
+      # image-et, ugyanabba a hibába futnánk vissza.
+      - name: Login to GHCR (as root)
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | sudo podman login ghcr.io \
+            --username ${{ github.actor }} --password-stdin
+
+      - name: Pull image (as root)
+        run: sudo podman pull ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Build bootable ISO via bootc-image-builder
         run: |
