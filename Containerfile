@@ -27,8 +27,40 @@ LABEL org.opencontainers.image.description="SteamOS/Bazzite-alapú, macOS-ihlet�
 LABEL org.opencontainers.image.vendor="KryonOS Project"
 
 # ------------------------------------------------------------
+# 1b. ⚠️ KERÜLŐÚT egy ISMERT, NYITOTT bootc-image-builder hibához
+# (osbuild/bootc-image-builder issue #1188, kifejezetten Bazzite ellen
+# bejelentve, 2026 január óta megoldatlan): az ISO-generálás
+# "depsolve" fázisa elszáll, ha egy engedélyezett repó helyi
+# fájl-elérési útra mutató GPG-kulcsot használ
+# (gpgkey=file:///etc/pki/rpm-gpg/...), mert a bootc-image-builder
+# saját depsolve-környezete nem éri el ezt a helyi fájlt, még ha az
+# image-ben egyébként létezik is. A "terra-mesa" repó (kiegészítő
+# multimédia-kodekek, amik már telepítve vannak a Bazzite alapban)
+# ebbe a hibába fut.
+#
+# Megoldás: letiltjuk ezt a repót a saját image-ünkben. Ez NEM távolít
+# el semmilyen már telepített csomagot — csak azt jelenti, hogy ez a
+# repó többé nem lesz lekérdezve (se boot közben, se ISO-buildkor).
+# Ha valaha kézzel akarnál `rpm-ostree install`-lal terra-mesa-s
+# csomagot rétegezni, előbb vissza kell kapcsolnod:
+#   sudo sed -i '/\[terra-mesa\]/,/^\[/{s/enabled=0/enabled=1/}' \
+#     /etc/yum.repos.d/terra*.repo
+RUN dnf config-manager --set-disabled terra-mesa 2>/dev/null \
+    || dnf5 config-manager setopt terra-mesa.enabled=0 2>/dev/null \
+    || grep -rl '\[terra-mesa\]' /etc/yum.repos.d/ | xargs -r sed -i \
+        '/\[terra-mesa\]/,/^\[/{s/^enabled=1/enabled=0/}' \
+    && ostree container commit
+
+# ------------------------------------------------------------
 # 2. Csomagok: dock/blur/glass-effect függőségek, fontok
 # ------------------------------------------------------------
+# ⚠️ JAVÍTVA (első build hiba alapján): a `plymouth-plugin-script`
+# csomag hiányzott — enélkül a "script" Plymouth-motor (amit a
+# kryonos.plymouth ModuleName=script sora kér) nem elérhető, és a
+# `plymouth-set-default-theme -R kryonos` erre a hibára fut:
+# "/usr/lib64/plymouth/script.so does not exist". Ez egy jól ismert,
+# gyakori Fedora-hiba script-alapú Plymouth témáknál.
+#
 # ⚠️ AUDIT-MEGÁLLAPÍTÁS: a Latte Dock (upstream, KDE) NEM támogatja
 # a Plasma 6-ot — a fejlesztők hivatalosan leállították a Plasma 6
 # portolást (invent.kde.org/plasma/latte-dock issue #134, "Plasma 6
