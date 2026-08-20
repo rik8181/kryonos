@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=KryonOS
+Description=KryonOS bootolási képernyő - logó és rendszernév megjelenítése
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/kryonos
+ScriptFile=/usr/share/plymouth/themes/kryonos/kryonos.script

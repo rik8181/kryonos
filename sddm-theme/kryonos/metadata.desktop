@@ -1,0 +1,14 @@
+[SddmGreeterTheme]
+Name=KryonOS
+Description=macOS-ihletésű frosted-glass bejelentkező képernyő
+Author=KryonOS Project
+Copyright=(c) 2026, KryonOS Project
+License=GPL-3.0
+Type=sddm-theme
+Version=1.0
+Website=https://example.com
+Screenshot=screenshot.png
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Font=Inter

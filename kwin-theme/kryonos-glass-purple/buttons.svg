@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  KryonOS Glass — buttons.svg
+  ========================================
+  macOS "traffic light" stílusú vezérlőgombok: piros (bezár),
+  sárga (kicsinyítés), zöld (teljes képernyő). Minden gombnak van egy
+  "normal" (visszafogott, csak a szín látszik) és egy "hover" állapota
+  (a szimbólum — ×, −, ⤢ — megjelenik, ahogy macOS-en is).
+
+  Az Aurorae ezeket a csoportokat név szerint keresi; hover-kor a
+  "*-hover" csoportot rendereli a "*" helyett.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14">
+
+  <!-- ================= CLOSE (piros) ================= -->
+  <g id="close">
+    <circle cx="7" cy="7" r="6.5" fill="#ff5f57" stroke="#e0443e" stroke-width="0.5"/>
+  </g>
+  <g id="close-hover">
+    <circle cx="7" cy="7" r="6.5" fill="#ff5f57" stroke="#e0443e" stroke-width="0.5"/>
+    <path d="M 4.8,4.8 L 9.2,9.2 M 9.2,4.8 L 4.8,9.2"
+          stroke="#4d0000" stroke-width="1.1" stroke-linecap="round"/>
+  </g>
+
+  <!-- ================= MINIMIZE (sárga) ================= -->
+  <g id="minimize">
+    <circle cx="7" cy="7" r="6.5" fill="#febc2e" stroke="#d89e24" stroke-width="0.5"/>
+  </g>
+  <g id="minimize-hover">
+    <circle cx="7" cy="7" r="6.5" fill="#febc2e" stroke="#d89e24" stroke-width="0.5"/>
+    <path d="M 4.4,7 L 9.6,7"
+          stroke="#7a4a00" stroke-width="1.1" stroke-linecap="round"/>
+  </g>
+
+  <!-- ================= MAXIMIZE / TELJES KÉPERNYŐ (zöld) ================= -->
+  <g id="maximize">
+    <circle cx="7" cy="7" r="6.5" fill="#28c840" stroke="#1ea430" stroke-width="0.5"/>
+  </g>
+  <g id="maximize-hover">
+    <circle cx="7" cy="7" r="6.5" fill="#28c840" stroke="#1ea430" stroke-width="0.5"/>
+    <path d="M 4.6,5.4 L 7,7.8 L 9.4,5.4 M 4.6,8.6 L 7,6.2 L 9.4,8.6"
+          stroke="#0a3d0f" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+          transform="rotate(45 7 7) scale(0.55) translate(5.7 5.7)"/>
+  </g>
+
+  <!-- Inaktív ablak esetén (nincs fókuszban) — halványabb, szürkés
+       verzió, ahogy macOS-en is elszürkülnek a gombok -->
+  <g id="close-inactive">
+    <circle cx="7" cy="7" r="6.5" fill="#5c5c5e"/>
+  </g>
+  <g id="minimize-inactive">
+    <circle cx="7" cy="7" r="6.5" fill="#5c5c5e"/>
+  </g>
+  <g id="maximize-inactive">
+    <circle cx="7" cy="7" r="6.5" fill="#5c5c5e"/>
+  </g>
+
+</svg>

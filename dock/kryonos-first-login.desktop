@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=KryonOS First-Login Setup
+Exec=/usr/libexec/kryonos-plasma-defaults.sh
+X-KDE-autostart-phase=1
+X-GNOME-Autostart-enabled=true
+NoDisplay=true

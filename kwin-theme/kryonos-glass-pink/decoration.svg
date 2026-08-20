@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  KryonOS Glass — Aurorae decoration.svg
+  ========================================
+  macOS-ihletésű "frosted glass" ablakkeret.
+
+  Az Aurorae motor ezt a fájlt 9-patch módon szeleteli fel a
+  metadata.desktop-ban megadott Border* értékek alapján, és minden
+  ablakhoz dinamikusan nyújtja/csempézi a szegmenseket. Az itt látható
+  méretek (pl. 12px sugarú sarok) csak a tervezői nézethez kellenek —
+  futásidőben a border-width dönti el a tényleges méretet.
+
+  A valódi "glass blur" hatást NEM ez az SVG adja (SVG nem tud élő
+  háttér-elmosást), hanem a KWin compositor blurEnabled=true beállítása
+  (lásd dock/kryonos-plasma-defaults.sh). Ez az SVG csak a keret
+  formáját, színátmenetét és a finom highlight-szegélyt definiálja,
+  ami együtt adja ki a "frosted glass" összhatást a valódi blur felett.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+
+  <defs>
+    <!-- Enyhén sötétített, félig áttetsző alap — ez ül majd a KWin
+         blur-je fölött, együtt adva a "jégcsiszolt üveg" hatást -->
+    <linearGradient id="glassFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#2b2d33" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#1c1d21" stop-opacity="0.65"/>
+    </linearGradient>
+
+    <!-- Felső highlight-csík, ami a fényvisszaverődést imitálja -->
+    <linearGradient id="topHighlight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- ============================================================
+         AKCENTSZÍN — ezt cseréli a scripts/generate_accent_variants.py
+         variánsonként (pl. #a855f7 lila, #3b82f6 kék, #ef4444 piros...)
+         Ez adja a fókuszált ablak finom színes szegély-izzását, ahogy
+         Windows 11 / macOS accent-color rendszerek is csinálják.
+         ============================================================ -->
+    <linearGradient id="accentGlow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#f472b6"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ============================================================
+       decoration-top-left  (bal-felső sarok, lekerekítve)
+       ============================================================ -->
+  <g id="decoration-top-left">
+    <path d="M 12,0
+             L 24,0 L 24,24 L 0,24
+             L 0,12
+             A 12,12 0 0 1 12,0 Z"
+          fill="url(#glassFill)"/>
+    <path d="M 12,0.5 A 11.5,11.5 0 0 0 0.5,12"
+          fill="none" stroke="url(#accentGlow)" stroke-opacity="0.4" stroke-width="1"/>
+  </g>
+
+  <!-- ============================================================
+       decoration-top  (címsor középső, vízszintesen nyújtható rész)
+       ============================================================ -->
+  <g id="decoration-top">
+    <rect x="0" y="0" width="24" height="24" fill="url(#glassFill)"/>
+    <rect x="0" y="0" width="24" height="8" fill="url(#topHighlight)"/>
+    <!-- Vékony akcentszín-csík a címsor alján — ez a fő "színválasztós"
+         elem, ami minden variánsban másik tónust kap -->
+    <rect x="0" y="22.3" width="24" height="1.4" fill="url(#accentGlow)" opacity="0.85"/>
+  </g>
+
+  <!-- ============================================================
+       decoration-top-right  (jobb-felső sarok, lekerekítve)
+       ============================================================ -->
+  <g id="decoration-top-right">
+    <path d="M 0,0
+             L 12,0
+             A 12,12 0 0 1 24,12
+             L 24,24 L 0,24 Z"
+          fill="url(#glassFill)"/>
+    <path d="M 12,0.5 A 11.5,11.5 0 0 1 23.5,12"
+          fill="none" stroke="url(#accentGlow)" stroke-opacity="0.4" stroke-width="1"/>
+  </g>
+
+  <!-- ============================================================
+       decoration-left / decoration-right  (oldalsó keretek, 1px)
+       ============================================================ -->
+  <g id="decoration-left">
+    <rect x="0" y="0" width="24" height="24" fill="url(#glassFill)"/>
+  </g>
+  <g id="decoration-right">
+    <rect x="0" y="0" width="24" height="24" fill="url(#glassFill)"/>
+  </g>
+
+  <!-- ============================================================
+       decoration-bottom-left / bottom / bottom-right
+       ============================================================ -->
+  <g id="decoration-bottom-left">
+    <path d="M 0,0 L 24,0 L 24,24 L 12,24
+             A 12,12 0 0 1 0,12 Z"
+          fill="url(#glassFill)"/>
+  </g>
+  <g id="decoration-bottom">
+    <rect x="0" y="0" width="24" height="24" fill="url(#glassFill)"/>
+  </g>
+  <g id="decoration-bottom-right">
+    <path d="M 0,0 L 12,0
+             A 12,12 0 0 1 24,12
+             L 24,24 L 0,24 Z"
+          fill="url(#glassFill)"/>
+  </g>
+
+</svg>

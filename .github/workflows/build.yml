@@ -1,0 +1,82 @@
+name: Build KryonOS image
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Heti automatikus rebuild, hogy kövesse a Bazzite upstream frissítéseit.
+    # A `--pull=newer` lentebb biztosítja, hogy tényleg a LEGFRISSEBB
+    # Bazzite base image-et húzzuk be minden buildnél (nem egy esetlegesen
+    # gyorsítótárazott régebbi réteget). A ":latest" MELLETT egy dátumozott
+    # taget is pusholunk (pl. ":20260804") — ez teszi lehetővé, hogy egy
+    # felhasználó SZÜKSÉG ESETÉN egy korábbi, még biztosan jó KryonOS
+    # build-re rebase-eljen vissza (ugyanaz a minta, mint a Bazzite saját
+    # 90 napos dátumozott build-jeinél).
+    - cron: "0 3 * * 1"
+  workflow_dispatch: {}
+
+env:
+  IMAGE_NAME: kryonos
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set build date tag
+        run: echo "DATE_TAG=$(date +%Y%m%d)" >> $GITHUB_ENV
+
+      - name: Build image (podman)
+        run: |
+          podman build \
+            --pull=newer \
+            --tag ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            --tag ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DATE_TAG }} \
+            --file Containerfile .
+
+      - name: Login to GHCR
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push image
+        run: |
+          podman push ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          podman push ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DATE_TAG }}
+
+  # A második job az OCI image-ből bootolható ISO-t generál
+  # az ublue-os "image-template" / bootc-image-builder eszközzel.
+  build-iso:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build bootable ISO via bootc-image-builder
+        run: |
+          mkdir -p output
+          sudo podman run --rm --privileged \
+            --pull=newer \
+            --security-opt label=type:unconfined_t \
+            -v ./output:/output \
+            -v /var/lib/containers/storage:/var/lib/containers/storage \
+            quay.io/centos-bootc/bootc-image-builder:latest \
+            --type iso \
+            --local \
+            ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Upload ISO artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kryonos-iso
+          path: output/bootiso/*.iso
