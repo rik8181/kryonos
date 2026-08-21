@@ -33,6 +33,7 @@ qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript '
             p.alignment = "center";
             p.height = 58;
             p.lengthMode = "fit";
+            p.opacity = "translucent";
         }
     }
 ' 2>/dev/null || true
